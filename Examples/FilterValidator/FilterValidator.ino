@@ -15,6 +15,7 @@
 
 EMAFilter16 Filter1;
 
+#define NOISE_RANGE_ABSOLUTE 10000
 
 #define TEST_SIZE 512
 
@@ -66,8 +67,6 @@ void DebugStepResponse(IFilter* filter)
 
 void DebugNoiseResponse(IFilter* filter)
 {
-#define NOISE_RANGE_ABSOLUTE 10000
-
 	random(analogRead(A0));
 
 	Serial.println(F("Noise response"));
