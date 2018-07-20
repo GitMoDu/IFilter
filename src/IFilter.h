@@ -20,6 +20,10 @@ public:
 	uint16_t GetCurrentValue();
 	virtual void ForceReset(const uint16_t input);
 	virtual void SetNextValue(const uint16_t input);
+
+
+	virtual void AddStepValue(const uint16_t input) { SetNextValue(input); }
+	virtual uint16_t GetUpdateValue() { return GetCurrentValue(); }
 };
 
 class BlankFilter16 : public IFilter
