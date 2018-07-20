@@ -6,9 +6,6 @@
 
 #include <Arduino.h>
 
-#ifndef UINT16_MAXVALUE
-#define UINT16_MAXVALUE 65535
-#endif
 
 #ifndef UINT16_MIDDLE
 #define UINT16_MIDDLE 32767
@@ -111,10 +108,10 @@ public:
 	//
 	//		EmaTimes2Grunt = FirstPass.GetCurrentValue();
 	//
-	//		//Clamps the first pass up to UINT16_MAXVALUE
+	//		//Clamps the first pass up to UINT16_MAX
 	//		if (EmaTimes2Grunt > UINT16_MIDDLE)
 	//		{
-	//			EmaTimes2Grunt = UINT16_MAXVALUE;
+	//			EmaTimes2Grunt = UINT16_MAX;
 	//		}
 	//		else
 	//		{

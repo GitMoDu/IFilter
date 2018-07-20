@@ -24,7 +24,7 @@ public:
 	void StepValue()
 	{
 		State = State + InputValue - Value;
-		Value = constrain(State >> 4, 0, UINT16_MAXVALUE);
+		Value = constrain(State >> 4, 0, UINT16_MAX);
 	}
 
 	void ForceReset(const uint16_t input)
