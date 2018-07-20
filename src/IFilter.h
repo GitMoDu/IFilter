@@ -17,7 +17,7 @@ public:
 	IFilter(const uint16_t startingValue = UINT16_MIDDLE) {}
 public:
 	virtual void StepValue() {}
-	uint16_t GetCurrentValue() { return 0; }
+	virtual uint16_t GetCurrentValue() { return 0; }
 	virtual void ForceReset(const uint16_t input) {}
 	virtual void SetNextValue(const uint16_t input) {}
 
