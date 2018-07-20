@@ -25,9 +25,38 @@ void Halt()
 	while (1);;
 }
 
+
 void DebugImpulseResponse(IFilter* filter)
 {
 	Serial.println(F("Impulse response"));
+
+	filter->ForceReset(0);
+	filter->SetNextValue(UINT16_MAX);	
+	Serial.println(filter->GetCurrentValue());	
+	filter->StepValue();
+	filter->SetNextValue(0);
+	
+	for (uint16_t i = 0; i < TEST_SIZE; i++)
+	{
+		Serial.println(filter->GetCurrentValue());
+		filter->StepValue();
+
+		if (random(1))
+		{
+			filter->SetNextValue(map(random(100), 0, 100, 0, NOISE_RANGE_ABSOLUTE));
+		}
+		else
+		{
+			filter->SetNextValue(map(random(100), 0, 100, 0, -NOISE_RANGE_ABSOLUTE));
+		}		
+	}
+
+	DebugFilter(filter);
+}
+
+void DebugStepResponse(IFilter* filter)
+{
+	Serial.println(F("Step response"));
 
 	filter->ForceReset(0);
 	filter->SetNextValue(UINT16_MAX);
@@ -41,7 +70,7 @@ void DebugNoiseResponse(IFilter* filter)
 
 	random(analogRead(A0));
 
-	Serial.println(F("Impulse response"));
+	Serial.println(F("Noise response"));
 
 	filter->ForceReset(UINT16_MIDDLE);
 
@@ -57,8 +86,7 @@ void DebugNoiseResponse(IFilter* filter)
 		else
 		{
 			filter->SetNextValue(map(random(100), 0, 100, 0, -NOISE_RANGE_ABSOLUTE));
-		}
-		
+		}		
 	}
 
 	DebugFilter(filter);
@@ -75,10 +103,6 @@ void DebugFilter(IFilter* filter)
 
 void setup()
 {
-}
-
-void loop()
-{
 	Serial.begin(SERIAL_BAUD_RATE);
 	while (!Serial)
 		;
@@ -86,7 +110,13 @@ void loop()
 
 	Serial.println(F("Filter Validator"));
 
+	DebugStepResponse(&Filter1);
+	
 	DebugImpulseResponse(&Filter1);
 
 	DebugNoiseResponse(&Filter1);
+}
+
+void loop()
+{
 }
