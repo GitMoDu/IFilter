@@ -82,6 +82,19 @@ public:
 		UpdateValue();
 	}
 
+	void AddStepValue(const uint16_t input)
+	{
+		InputValue = input;
+		SampleStack.addForce(InputValue);
+	}
+
+	uint16_t GetUpdateValue()
+	{
+		UpdateValue();
+
+		return Value;
+	}
+
 	void ForceReset(const uint16_t input)
 	{
 		IFilter16::ForceReset(input);
