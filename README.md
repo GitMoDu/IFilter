@@ -1,4 +1,5 @@
-# FilterProcess
+# IFilter
+
 A collection of, Arduino compatible, signal processing filters, collections and process task to update values.
 
 FilterGroup - Template class to generate a filter collection, which is added one by one in setup/runtime.
