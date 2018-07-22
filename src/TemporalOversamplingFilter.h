@@ -6,60 +6,77 @@
 #include <IFilter.h>
 #include <RingBufCPP.h>
 
-#define TEMPORAL_OVERSAMPLING_FILTER_ALIASING_FACTOR 10
 
 #define TEMPORAL_OVERSAMPLING_FILTER_WEIGHT_DECAY_FACTOR_DEFAULT 18
 
-#define TEMPORAL_OVERSAMPLING_FILTER_BASE_MULTIPLIER (TEMPORAL_OVERSAMPLING_FILTER_ALIASING_FACTOR * (_StackSize))
 
 ///StackSize equals the amount of samples before settle:
 /// more sample, less harsh curve.
 ///The filter factor decides the importance of freshness of value:
 /// bigger factor, faster response.
 ///Settle time is fixed depending on filter properties, input value delta will not change settle time.
-template <int _StackSize, int _Factor>
+template <uint8_t StackSize, uint8_t Factor>
 class TemporalOversamplingFilter16 : public IFilter16
 {
 private:
 	uint32_t Sum = 0;
-	RingBufCPP<uint16_t, _StackSize> SampleStack;
+	RingBufCPP<uint16_t, StackSize> SampleStack;
+
+	uint16_t Value = 0;
 
 	uint16_t WeightsTotal = 0;
-	uint8_t WeightFactors[_StackSize];
+	uint8_t WeightFactors[StackSize];
 
 private:
-	inline uint8_t GetBaseWeight(const uint8_t factor)
-	{
-		if (factor > (TEMPORAL_OVERSAMPLING_FILTER_BASE_MULTIPLIER / UINT8_MAX))
-		{
-			return UINT8_MAX;
-		}
-		else
-		{
-			return constrain(TEMPORAL_OVERSAMPLING_FILTER_BASE_MULTIPLIER * factor, 0, UINT8_MAX);
-		}
-	}
-
 	inline uint8_t GetNextWeight(const uint8_t current, const uint8_t factor)
 	{
-		return ceil((double)current / (((double)factor / (double)TEMPORAL_OVERSAMPLING_FILTER_ALIASING_FACTOR)));
+		return ceil((double)current / ((double)factor));
 	}
 
+	uint8_t DebugCount = 0;
 	inline void UpdateValue()
 	{
 		Sum = 0;
-		for (uint8_t i = 0; i < _StackSize; i++)
+		if (SampleStack.isFull())
 		{
-			Sum += (*SampleStack.peek(SampleStack.numElements() - 1 - i)) * WeightFactors[i];
+			if (DebugCount > 0)
+			{
+				Serial.println("Sum____\tPeek_____\tWeight____");
+			}
+			for (uint8_t i = 0; i < StackSize; i++)
+			{
+				if (DebugCount > 0)
+				{
+					Serial.print(Sum);
+					Serial.print('\t');
+					Serial.print(*SampleStack.peek(SampleStack.numElements() - 1 - i));
+					Serial.print('\t');
+					Serial.println(((uint16_t)WeightFactors[i]));
+				}
+
+				Sum += (uint32_t)(*SampleStack.peek(SampleStack.numElements() - 1 - i)) * ((uint16_t)WeightFactors[i]);
+			}
 		}
-		Value = constrain(Sum / WeightsTotal, 0, UINT16_MAXVALUE);
+		else
+		{
+			Sum = 0;//No value ready yet;
+		}
+
+		if (DebugCount > 0)
+		{
+			DebugCount--;
+		}
+
+		Value = constrain(Sum / WeightsTotal, 0, UINT16_MAX);
 	}
 
 	void FillWeightFactors(const uint8_t factor)
 	{
-		uint8_t FillWeight = GetBaseWeight(factor);
+		uint8_t FillWeight = UINT8_MAX;
 
-		for (uint8_t i = 0; i < _StackSize; i++)
+		WeightsTotal = 0;
+
+		for (uint8_t i = 0; i < StackSize; i++)
 		{
 			WeightFactors[i] = FillWeight;
 			WeightsTotal += FillWeight;
@@ -70,53 +87,52 @@ private:
 public:
 	TemporalOversamplingFilter16(const uint16_t startingValue = UINT16_MIDDLE)
 		: IFilter16(startingValue)
+		, SampleStack()
 	{
-		FillWeightFactors(_Factor);
+		FillWeightFactors(Factor);
 		ForceReset(startingValue);
 	}
 
+	//This filter does not change output when you step it, only when you feed it.
 	void StepValue()
 	{
-		SampleStack.addForce(InputValue);
-
 		UpdateValue();
 	}
 
-	void AddStepValue(const uint16_t input)
-	{
-		InputValue = input;
-		SampleStack.addForce(InputValue);
-	}
-
-	uint16_t GetUpdateValue()
+	uint16_t GetCurrentValue()
 	{
 		UpdateValue();
 
 		return Value;
 	}
 
+	void SetNextValue(const uint16_t input)
+	{
+		SampleStack.addForce(input);
+	}
+
 	void ForceReset(const uint16_t input)
 	{
 		IFilter16::ForceReset(input);
-		Sum = input * _StackSize;
-		for (uint8_t i = 0; i < _StackSize; i++)
+		for (uint8_t i = 0; i < StackSize; i++)
 		{
-			SampleStack.add(input);
+			SampleStack.addForce(input);
 		}
 	}
 
-	//void Debug()
-	//{
-	//	Serial.print(F("WeightFactors "));
-	//	for (uint8_t i = 0; i < _StackSize; i++)
-	//	{
-	//		Serial.print('|');
-	//		Serial.print(WeightFactors[i]);
-	//	}
-	//	Serial.println('|');
+	void Debug()
+	{
+		Serial.print(F("WeightFactors "));
+		for (uint8_t i = 0; i < StackSize; i++)
+		{
+			Serial.print('|');
+			Serial.print(WeightFactors[i]);
+		}
+		Serial.println('|');
 
-	//	Serial.print(F("WeightsTotal: "));
-	//	Serial.println(WeightsTotal);
-	//}
+		Serial.print(F("WeightsTotal "));
+		Serial.println(WeightsTotal);
+
+	}
 };
 #endif
