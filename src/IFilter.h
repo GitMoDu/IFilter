@@ -4,7 +4,7 @@
 #define _IFILTER_h
 
 
-#include <Arduino.h>
+#include <stdint.h>
 
 
 #ifndef UINT16_MIDDLE
