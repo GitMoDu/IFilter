@@ -66,12 +66,12 @@ void DebugLinearResponse(IFilter* filter)
 	}
 }
 
-void DebugStepResponse(IFilter* filter)
+#define STEP_RAMP_STEPS 7
+void DebugStepRampResponse(IFilter* filter)
 {
-	Serial.println(F("Step response"));
+	Serial.println(F("Step Ramp response"));
 
 	filter->ForceReset(0);
-	filter->SetNextValue(UINT16_MIDDLE);
 
 	Serial.println(UINT16_MAX);
 	Serial.println(0);
@@ -80,8 +80,12 @@ void DebugStepResponse(IFilter* filter)
 	{
 		Serial.println(filter->GetCurrentValue());
 		filter->StepValue();
+
+
+		filter->SetNextValue(map(map(i, 0, TEST_SIZE, 0, UINT16_MAX), 0, UINT16_MAX, 0, STEP_RAMP_STEPS) * (UINT16_MAX / STEP_RAMP_STEPS));
 	}
 }
+
 
 void DebugNoiseResponse(IFilter* filter)
 {
