@@ -20,26 +20,6 @@ public:
 	virtual uint16_t GetCurrentValue() { return 0; }
 	virtual void ForceReset(const uint16_t input) {}
 	virtual void SetNextValue(const uint16_t input) {}
-
-
-	virtual void AddStepValue(const uint16_t input) { SetNextValue(input); }
-	virtual uint16_t GetUpdateValue() { return GetCurrentValue(); }
-};
-
-class BlankFilter16 : public IFilter
-{
-private:
-	uint16_t Value = 0;
-
-public:
-	BlankFilter16(const uint16_t startingValue = UINT16_MIDDLE) 
-	{
-		Value = startingValue;
-	}
-public:
-	void StepValue() {}
-	uint16_t GetCurrentValue() const { return Value; }
-	void ForceReset(const uint16_t input) { Value = input; }
 };
 
 class IFilter16 : public IFilter
@@ -49,12 +29,10 @@ protected:
 	uint16_t InputValue = 0;
 
 public:
-	IFilter16(const uint16_t startingValue = UINT16_MIDDLE)
+	IFilter16(const uint16_t startingValue = UINT16_MIDDLE) : IFilter(startingValue)
 	{
 		ForceReset(startingValue);
 	}
-
-	virtual void StepValue() {}
 
 	virtual void SetNextValue(const uint16_t input)
 	{
