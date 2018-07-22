@@ -12,25 +12,65 @@
 class EMAFilter16 : public IFilter16
 {
 private:
-	int32_t State = 0;
+	uint8_t Ratio = 127;
 
 public:
 	EMAFilter16(const uint16_t startingValue = UINT16_MIDDLE)
 		: IFilter16(startingValue)
 	{
-		ForceReset(startingValue);
 	}
 
-	void StepValue()
+	virtual void SetRatio(const uint8_t ratio)
 	{
-		State = State + InputValue - Value;
-		Value = constrain(State >> 4, 0, UINT16_MAX);
+		Ratio = ratio;
+	}
+
+	virtual void StepValue()
+	{
+		Value = map(Ratio, 0, UINT8_MAX, 0, InputValue) + map(Ratio, UINT8_MAX, 0, 0, Value);
+	}
+};
+
+class DEMAFilter16 : public IFilter16
+{
+private:
+	EMAFilter16 First;
+	EMAFilter16 Second;
+
+public:
+	DEMAFilter16(const uint16_t startingValue = UINT16_MIDDLE)
+		: IFilter16(startingValue)
+		, First(startingValue)
+		, Second(startingValue)
+	{
 	}
 
 	void ForceReset(const uint16_t input)
 	{
 		IFilter16::ForceReset(input);
-		State = input << 4;
+		First.ForceReset(input);
+		Second.ForceReset(input);
+	}
+
+	void SetRatio(const uint8_t ratio)
+	{
+		First.SetRatio(ratio);
+		Second.SetRatio(ratio);
+	}
+
+	void SetNextValue(const uint16_t input)
+	{
+		IFilter16::SetNextValue(input);
+		First.SetNextValue(input);
+	}
+
+	void StepValue()
+	{		
+		First.StepValue();
+		Second.SetNextValue(First.GetCurrentValue());
+		Second.StepValue();
+		Value = Second.GetCurrentValue();
 	}
 };
+
 #endif

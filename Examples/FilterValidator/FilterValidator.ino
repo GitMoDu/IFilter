@@ -12,19 +12,15 @@
 #include <IFilter.h>
 
 #include <EMAFilter.h>
+#include <TemporalOversamplingFilter.h>
 
-EMAFilter16 Filter1;
+DEMAFilter16 FilterEMA;
+DEMAFilter16 FilterDEMA;
 
-#define NOISE_RANGE_ABSOLUTE 10000
 
-#define TEST_SIZE 512
+#define NOISE_RANGE_ABSOLUTE 1000
 
-void Halt()
-{
-	Serial.println("Critical Error");
-	delay(1000);
-	while (1);;
-}
+#define TEST_SIZE 256
 
 
 void DebugImpulseResponse(IFilter* filter)
@@ -32,27 +28,42 @@ void DebugImpulseResponse(IFilter* filter)
 	Serial.println(F("Impulse response"));
 
 	filter->ForceReset(0);
-	filter->SetNextValue(UINT16_MAX);	
-	Serial.println(filter->GetCurrentValue());	
-	filter->StepValue();
-	filter->SetNextValue(0);
 	
+
+	Serial.println(UINT16_MAX);
+	Serial.println(0);
+	Serial.println(0);
 	for (uint16_t i = 0; i < TEST_SIZE; i++)
 	{
 		Serial.println(filter->GetCurrentValue());
 		filter->StepValue();
 
-		if (random(1))
+		if (i == 0)
 		{
-			filter->SetNextValue(map(random(100), 0, 100, 0, NOISE_RANGE_ABSOLUTE));
-		}
-		else
+			filter->SetNextValue(UINT16_MAX);
+		}else if (i == 1)
 		{
-			filter->SetNextValue(map(random(100), 0, 100, 0, -NOISE_RANGE_ABSOLUTE));
-		}		
+			filter->SetNextValue(0);
+		}	
 	}
+}
 
-	DebugFilter(filter);
+void DebugLinearResponse(IFilter* filter)
+{
+	Serial.println(F("Linear response"));
+
+	filter->ForceReset(0);
+
+	Serial.println(UINT16_MAX);
+	Serial.println(0);
+	Serial.println(0);
+	for (uint16_t i = 0; i < TEST_SIZE; i++)
+	{
+		Serial.println(filter->GetCurrentValue());
+		filter->StepValue();
+
+		filter->SetNextValue(map(i, 0, TEST_SIZE, 0, UINT16_MAX));
+	}
 }
 
 void DebugStepResponse(IFilter* filter)
@@ -60,9 +71,16 @@ void DebugStepResponse(IFilter* filter)
 	Serial.println(F("Step response"));
 
 	filter->ForceReset(0);
-	filter->SetNextValue(UINT16_MAX);
+	filter->SetNextValue(UINT16_MIDDLE);
 
-	DebugFilter(filter);
+	Serial.println(UINT16_MAX);
+	Serial.println(0);
+	Serial.println(0);
+	for (uint16_t i = 0; i < TEST_SIZE; i++)
+	{
+		Serial.println(filter->GetCurrentValue());
+		filter->StepValue();
+	}
 }
 
 void DebugNoiseResponse(IFilter* filter)
@@ -73,31 +91,33 @@ void DebugNoiseResponse(IFilter* filter)
 
 	filter->ForceReset(UINT16_MIDDLE);
 
+	Serial.println(UINT16_MAX);
+	Serial.println(0);
+	Serial.println(0);
 	for (uint16_t i = 0; i < TEST_SIZE; i++)
 	{
-		Serial.println(filter->GetCurrentValue());
 		filter->StepValue();
-
-		if (random(1))
+		Serial.println(filter->GetCurrentValue());
+		if (i%2==0)
 		{
-			filter->SetNextValue(map(random(100), 0, 100, 0, NOISE_RANGE_ABSOLUTE));
+			filter->SetNextValue(UINT16_MIDDLE + random(NOISE_RANGE_ABSOLUTE));
 		}
 		else
 		{
-			filter->SetNextValue(map(random(100), 0, 100, 0, -NOISE_RANGE_ABSOLUTE));
+			filter->SetNextValue(UINT16_MIDDLE - random(NOISE_RANGE_ABSOLUTE));
 		}		
 	}
-
-	DebugFilter(filter);
 }
 
-void DebugFilter(IFilter* filter)
+void DebugFilterResponse(IFilter* filter)
 {
-	for (uint16_t i = 0; i < TEST_SIZE; i++)
-	{
-		Serial.println(filter->GetCurrentValue());
-		filter->StepValue();
-	}
+	DebugLinearResponse(filter);
+
+	DebugStepResponse(filter);
+
+	DebugImpulseResponse(filter);
+
+	DebugNoiseResponse(filter);
 }
 
 void setup()
@@ -107,13 +127,14 @@ void setup()
 		;
 	delay(1000);
 
-	Serial.println(F("Filter Validator"));
+	Serial.println(F("Filter Example"));
 
-	DebugStepResponse(&Filter1);
+	FilterEMA.SetRatio(150);
+	DebugFilterResponse(&FilterEMA);
+
+	FilterDEMA.SetRatio(150);
+	DebugFilterResponse(&FilterDEMA);
 	
-	DebugImpulseResponse(&Filter1);
-
-	DebugNoiseResponse(&Filter1);
 }
 
 void loop()
