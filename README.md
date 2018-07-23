@@ -14,4 +14,6 @@ Available filters:
 
 EMA (Exponential Moving Average) - Optimized for integer operations. Inspired by https://www.norwegiancreations.com/2016/08/double-exponential-moving-average-filter-speeding-up-the-ema/ .
 
+![](https://raw.githubusercontent.com/GitMoDu/IFilter/master/Media/ResponseEMA.png)
+
 TemporalOversamplingFilter - Useful to get 16 bits out of a 8 bit signal, by oversampling temporaly and performing a weighted average for the result, tending to the freshest values to reduce latency.
