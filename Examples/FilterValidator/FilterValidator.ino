@@ -117,7 +117,7 @@ void DebugFilterResponse(IFilter* filter)
 {
 	DebugLinearResponse(filter);
 
-	DebugStepResponse(filter);
+	DebugStepRampResponse(filter);
 
 	DebugImpulseResponse(filter);
 
