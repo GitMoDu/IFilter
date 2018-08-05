@@ -27,7 +27,7 @@ public:
 
 	virtual void StepValue()
 	{
-		Value = map(Ratio, 0, UINT8_MAX, 0, InputValue) + map(Ratio, UINT8_MAX, 0, 0, Value);
+		Value = map(Ratio, UINT8_MAX, 0, 0, InputValue) + map(Ratio, 0, UINT8_MAX, 0, Value);
 	}
 };
 
