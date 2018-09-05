@@ -2,6 +2,8 @@
 
 A collection of, Arduino compatible, signal processing filters, collections and process task to update values.
 
+Input/Output is 16 bit wide [ 0 : 65535].
+
 FilterGroup - Template class to generate a filter collection, which is added one by one in setup/runtime.
 
 FilterProcess - Useful to scheduled asynchronous filter step updating, for a FilterGroup.
