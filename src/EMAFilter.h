@@ -69,7 +69,7 @@ public:
 		First.StepValue();
 		Second.SetNextValue(First.GetCurrentValue());
 		Second.StepValue();
-		Value = Second.GetCurrentValue();
+		Value = 2*First.GetCurrentValue() - Second.GetCurrentValue();
 	}
 };
 
