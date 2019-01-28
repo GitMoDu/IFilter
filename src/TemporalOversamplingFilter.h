@@ -22,8 +22,6 @@ private:
 	uint32_t Sum = 0;
 	RingBufCPP<uint16_t, StackSize> SampleStack;
 
-	uint16_t Value = 0;
-
 	uint16_t WeightsTotal = 0;
 	uint8_t WeightFactors[StackSize];
 
