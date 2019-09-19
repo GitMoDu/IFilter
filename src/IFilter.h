@@ -14,44 +14,43 @@
 class IFilter
 {
 public:
-	IFilter(const uint16_t startingValue = UINT16_MIDDLE) {}
+	IFilter() {}
 public:
-	virtual void StepValue() {}
-	virtual uint16_t GetCurrentValue() { return 0; }
+	virtual void Step() {}
+	virtual uint16_t Get() { return 0; }
 	virtual void ForceReset(const uint16_t input) {}
-	virtual void SetNextValue(const uint16_t input) {}
+	virtual void Set(const uint16_t input) {}
 };
 
-class IFilter16 : public IFilter
+class IFilterTemplate : public IFilter
 {
 protected:
-	uint16_t Value = 0;
+	uint16_t OutputValue = 0;
 	uint16_t InputValue = 0;
 
 public:
-	IFilter16(const uint16_t startingValue = UINT16_MIDDLE) : IFilter(startingValue)
+	IFilterTemplate() : IFilter()
 	{
-		ForceReset(startingValue);
 	}
 
-	virtual void SetNextValue(const uint16_t input)
+	virtual void Set(const uint16_t input)
 	{
 		InputValue = input;
 	}
 
-	uint16_t GetCurrentValue()
+	uint16_t Get()
 	{
-		return Value;
+		return OutputValue;
 	}
 
-	uint16_t GetTargetValue()
+	uint16_t GetTarget()
 	{
 		return InputValue;
 	}
 
 	virtual void ForceReset(const uint16_t input)
 	{
-		Value = input;
+		OutputValue = input;
 		InputValue = input;
 	}
 };
