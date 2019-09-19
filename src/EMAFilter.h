@@ -9,67 +9,74 @@
 
 #include <IFilter.h>
 
-class EMAFilter16 : public IFilter16
+
+class EMAFilter : public IFilterTemplate
 {
 private:
-	uint8_t Ratio = 127;
+	uint8_t Saturation = 127;
 
 public:
-	EMAFilter16(const uint16_t startingValue = UINT16_MIDDLE)
-		: IFilter16(startingValue)
+	EMAFilter(const uint8_t saturation = 127)
+		: IFilterTemplate()
 	{
+		Saturation = saturation;
 	}
 
-	virtual void SetRatio(const uint8_t ratio)
+	virtual void SetSaturation(const uint8_t saturation)
 	{
-		Ratio = ratio;
+		Saturation = saturation;
 	}
 
-	virtual void StepValue()
+	virtual void Step()
 	{
-		Value = map(Ratio, UINT8_MAX, 0, 0, InputValue) + map(Ratio, 0, UINT8_MAX, 0, Value);
+		OutputValue = map((uint16_t)Saturation, UINT8_MAX, 0, 0, InputValue) + map(Saturation, 0, UINT8_MAX, 0, OutputValue);
 	}
 };
 
-class DEMAFilter16 : public IFilter16
+class DEMAFilter : public IFilter
 {
 private:
-	EMAFilter16 First;
-	EMAFilter16 Second;
+	EMAFilter First;
+	EMAFilter Second;
+
+	uint16_t OutputValue = 0;
 
 public:
-	DEMAFilter16(const uint16_t startingValue = UINT16_MIDDLE)
-		: IFilter16(startingValue)
-		, First(startingValue)
-		, Second(startingValue)
+	DEMAFilter(const uint8_t saturation = 127)
+		: IFilter()
+		, First(saturation)
+		, Second(saturation)
 	{
 	}
 
 	void ForceReset(const uint16_t input)
 	{
-		IFilter16::ForceReset(input);
 		First.ForceReset(input);
 		Second.ForceReset(input);
 	}
 
-	void SetRatio(const uint8_t ratio)
+	void SetSaturation(const uint8_t saturation)
 	{
-		First.SetRatio(ratio);
-		Second.SetRatio(ratio);
+		First.SetSaturation(saturation);
+		Second.SetSaturation(saturation);
 	}
 
-	void SetNextValue(const uint16_t input)
+	uint16_t GetTarget()
 	{
-		IFilter16::SetNextValue(input);
-		First.SetNextValue(input);
+		return First.GetTarget();
 	}
 
-	void StepValue()
+	void Set(const uint16_t input)
+	{
+		First.Set(input);
+	}
+
+	void Step()
 	{		
-		First.StepValue();
-		Second.SetNextValue(First.GetCurrentValue());
-		Second.StepValue();
-		Value = 2*First.GetCurrentValue() - Second.GetCurrentValue();
+		First.Step();
+		Second.Set(First.Get());
+		Second.Step();
+		OutputValue = 2*First.Get() - Second.Get();
 	}
 };
 
