@@ -12,10 +12,9 @@
 #include <IFilter.h>
 
 #include <EMAFilter.h>
-#include <TemporalOversamplingFilter.h>
 
-DEMAFilter16 FilterEMA;
-DEMAFilter16 FilterDEMA;
+EMAFilter FilterEMA;
+DEMAFilter FilterDEMA;
 
 
 #define NOISE_RANGE_ABSOLUTE 1000
@@ -89,8 +88,6 @@ void DebugStepRampResponse(IFilter* filter)
 
 void DebugNoiseResponse(IFilter* filter)
 {
-	random(analogRead(A0));
-
 	Serial.println(F("Noise response"));
 
 	filter->ForceReset(UINT16_MIDDLE);
@@ -138,6 +135,8 @@ void setup()
 
 	FilterDEMA.SetRatio(150);
 	DebugFilterResponse(&FilterDEMA);
+
+	randomSeed(millis());
 	
 }
 
