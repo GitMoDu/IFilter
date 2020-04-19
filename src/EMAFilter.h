@@ -1,83 +1,80 @@
 // EMAFilter.h
 
-//https://forum.arduino.cc/index.php?topic=445844.0
-//Takes around 500 steps to reach 97% target value and around 1000 to reach 99%.
-//At 1500 steps it is at most 1 or 2 units out.
 
 #ifndef _EMAFILTER_h
 #define _EMAFILTER_h
 
-#include <IFilter.h>
+#include <IFilterTemplate.h>
 
-
-class EMAFilter : public IFilterTemplate
+class EMAFilter8 : public IFilter8
 {
 private:
-	uint8_t Saturation = 127;
+	uint8_t Saturation = 0;
+	const uint8_t MaxSaturation = 255;
 
 public:
-	EMAFilter(const uint8_t saturation = 127)
-		: IFilterTemplate()
+	EMAFilter8(const uint8_t saturation = 127)
+		: IFilter8()
 	{
-		Saturation = saturation;
-	}
-
-	virtual void SetSaturation(const uint8_t saturation)
-	{
-		Saturation = saturation;
-	}
-
-	virtual void Step()
-	{
-		OutputValue = map((uint16_t)Saturation, UINT8_MAX, 0, 0, InputValue) + map(Saturation, 0, UINT8_MAX, 0, OutputValue);
-	}
-};
-
-class DEMAFilter : public IFilter
-{
-private:
-	EMAFilter First;
-	EMAFilter Second;
-
-	uint16_t OutputValue = 0;
-
-public:
-	DEMAFilter(const uint8_t saturation = 127)
-		: IFilter()
-		, First(saturation)
-		, Second(saturation)
-	{
-	}
-
-	void ForceReset(const uint16_t input)
-	{
-		First.ForceReset(input);
-		Second.ForceReset(input);
+		SetSaturation(saturation);
 	}
 
 	void SetSaturation(const uint8_t saturation)
 	{
-		First.SetSaturation(saturation);
-		Second.SetSaturation(saturation);
+		Saturation = (saturation * (MaxSaturation)) / UINT8_MAX;
 	}
 
-	uint16_t GetTarget()
+	virtual void Step()
 	{
-		return First.GetTarget();
-	}
-
-	void Set(const uint16_t input)
-	{
-		First.Set(input);
-	}
-
-	void Step()
-	{		
-		First.Step();
-		Second.Set(First.Get());
-		Second.Step();
-		OutputValue = 2*First.Get() - Second.Get();
+		OutputValue = ((Saturation * ((int16_t)OutputValue - InputValue)) / UINT8_MAX) + InputValue;
 	}
 };
 
+class EMAFilter16 : public IFilter16
+{
+private:
+	uint8_t Saturation = 0;
+	const uint8_t MaxSaturation = 253;
+
+public:
+	EMAFilter16(const uint8_t saturation = 127)
+		: IFilter16() 
+	{
+		SetSaturation(saturation);
+	}
+
+	void SetSaturation(const uint8_t saturation)
+	{
+		Saturation = (saturation * (MaxSaturation)) / UINT8_MAX;
+	}
+
+	virtual void Step()
+	{
+		OutputValue = ((Saturation * ((int32_t)OutputValue - InputValue)) / UINT8_MAX) + InputValue;
+	}
+};
+
+class EMAFilter32 : public IFilter32
+{
+private:
+	uint8_t Saturation = 0;
+	const uint8_t MaxSaturation = 251;
+
+public:
+	EMAFilter32(const uint8_t saturation = 127)
+		: IFilter32()
+	{
+		SetSaturation(saturation);
+	}
+
+	void SetSaturation(const uint8_t saturation)
+	{
+		Saturation = (saturation * (MaxSaturation)) / UINT8_MAX;
+	}
+
+	virtual void Step()
+	{
+		OutputValue = (((uint32_t)Saturation * ((int64_t)OutputValue - InputValue)) / UINT8_MAX) + InputValue;
+	}
+};
 #endif
