@@ -1,4 +1,4 @@
-// IFilter.h
+// IFilterStepperTask.h
 
 #ifndef _IFILTER_TASK_INCLUDE_h
 #define _IFILTER_TASK_INCLUDE_h

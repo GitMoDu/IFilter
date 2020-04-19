@@ -18,8 +18,8 @@ private:
 	uint8_t FilterCount = 0;
 
 public:
-	IFilterStepperTask(Scheduler* scheduler, const bool autoStart = true)
-		: Task(UpdatePeriod, TASK_FOREVER, scheduler, autoStart)
+	IFilterStepperTask(Scheduler* scheduler)
+		: Task(UpdatePeriod, TASK_FOREVER, scheduler, false)
 	{
 		for (uint8_t i = 0; i < MaxCount; i++)
 		{
@@ -32,10 +32,7 @@ public:
 	{
 		for (uint8_t i = 0; i < FilterCount; i++)
 		{
-			if (Filters[i] != nullptr)
-			{
-				Filters[i]->Step();
-			}
+			Filters[i]->Step();
 		}
 
 		OnDataUpdated();
@@ -66,7 +63,10 @@ public:
 	{
 		uint32_t ComputeDuration = micros();
 
-		StepAll();
+		for (uint8_t i = 0; i < FilterCount; i++)
+		{
+			Filters[i]->Step();
+		}
 
 		ComputeDuration = micros() - ComputeDuration;
 		serial->print(F("Filters count: "));
@@ -74,7 +74,7 @@ public:
 		serial->println(F("."));
 		serial->print(F("Took "));
 		serial->print(ComputeDuration);
-		serial->print(F(" us. ("));
+		serial->print(F(" us. (Average "));
 		serial->print(ComputeDuration / FilterCount);
 		serial->println(F(" us per filter)"));
 	}
