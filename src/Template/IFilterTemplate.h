@@ -66,24 +66,18 @@ public:
 class IFilter8 : public IFilterSignedTemplate<uint8_t, int8_t, INT8_MAX>
 {
 public:
-	IFilter8() : IFilterSignedTemplate<uint8_t, int8_t, INT8_MAX>()
-	{
-	}
+	IFilter8() : IFilterSignedTemplate<uint8_t, int8_t, INT8_MAX>() {}
 };
 
 class IFilter16 : public IFilterSignedTemplate<uint16_t, int16_t, INT16_MAX>
 {
 public:
-	IFilter16() : IFilterSignedTemplate<uint16_t, int16_t, INT16_MAX>()
-	{
-	}
+	IFilter16() : IFilterSignedTemplate<uint16_t, int16_t, INT16_MAX>() {}
 };
 
 class IFilter32 : public IFilterSignedTemplate<uint32_t, int32_t, INT32_MAX>
 {
 public:
-	IFilter32() : IFilterSignedTemplate<uint32_t, int32_t, INT32_MAX>()
-	{
-	}
+	IFilter32() : IFilterSignedTemplate<uint32_t, int32_t, INT32_MAX>() {}
 };
 #endif
