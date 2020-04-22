@@ -14,7 +14,6 @@
 #include <EMAFilter.h>
 #include <DEMAFilter.h>
 #include <LowPassFilter.h>
-#include "FourierTransformAnalyser.h"
 
 const uint8_t LowPassFactor = 5;
 
@@ -27,8 +26,6 @@ LowPassFilter16<LowPassFactor> FilterLowPass16;
 EMAFilter32 FilterEMA32(255);
 DEMAFilter32 FilterDEMA32(255);
 LowPassFilter32<LowPassFactor> FilterLowPass32;
-
-FourierTransformAnalyser FFT;
 
 const uint16_t LinearTestSize = 200;
 const uint16_t ImpulseTestSize = 200;
