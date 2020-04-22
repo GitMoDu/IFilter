@@ -17,6 +17,9 @@ private:
 	IFilter* Filters[MaxCount];
 	uint8_t FilterCount = 0;
 
+protected:
+	virtual void OnFiltersStepped() {}
+
 public:
 	IFilterStepperTask(Scheduler* scheduler)
 		: Task(UpdatePeriod, TASK_FOREVER, scheduler, false)
@@ -35,7 +38,7 @@ public:
 			Filters[i]->Step();
 		}
 
-		OnDataUpdated();
+		OnFiltersStepped();
 
 		return true;
 	}
@@ -79,9 +82,6 @@ public:
 		serial->println(F(" us per filter)"));
 	}
 #endif
-
-protected:
-	virtual void OnDataUpdated() {}
 };
 
 #endif
