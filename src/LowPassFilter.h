@@ -9,18 +9,20 @@
 
 #include <IFilterTemplate.h>
 
-/* Max Factor = 16*/
-template<const uint8_t Factor = 3>
-class LowPassFilter8 : public IFilter8
+
+template<class IFilterBase, typename HighType, const uint8_t Factor, const uint8_t MaxFactor>
+class TemplateLowPassFilter : public IFilterBase
 {
 private:
-	const uint8_t MaxFactor = 6;
 	const uint8_t ConstrainedFactor = min(Factor, MaxFactor);
 
-	uint16_t HighValue = 0;
+	HighType HighValue = 0;
+
+	using IFilterBase::InputValue;
+	using IFilterBase::OutputValue;
 
 public:
-	LowPassFilter8() : IFilter8()
+	TemplateLowPassFilter() : IFilterBase()
 	{
 	}
 
@@ -32,47 +34,24 @@ public:
 	}
 };
 
-/* Max Factor = 16*/
-template<const uint8_t Factor = 3>
-class LowPassFilter16 : public IFilter16
+template<const uint8_t Factor = 4>
+class LowPassFilter8 : public TemplateLowPassFilter<IFilter8, uint16_t, Factor, 8>
 {
-private:
-	const int32_t MaxFactor = 7;
-	const uint8_t ConstrainedFactor = min(Factor, MaxFactor);
-
-	uint32_t HighValue = 0;
-
 public:
-	LowPassFilter16() : IFilter16()
-	{
-	}
-
-	virtual void Step()
-	{
-		HighValue = HighValue - (HighValue >> ConstrainedFactor) + InputValue;
-		OutputValue = HighValue >> ConstrainedFactor;
-	}
+	LowPassFilter8() : TemplateLowPassFilter<IFilter8, uint16_t, Factor, 8>() {}
 };
 
-/* Max Factor = 64*/
-template<const uint8_t Factor = 3>
-class LowPassFilter32 : public IFilter32
+template<const uint8_t Factor = 4>
+class LowPassFilter16 : public TemplateLowPassFilter<IFilter16, uint32_t, Factor, 8>
 {
-private:
-	const int32_t MaxFactor = 7;
-	const uint8_t ConstrainedFactor = min(Factor, MaxFactor);
-
-	uint64_t HighValue = 0;
-
 public:
-	LowPassFilter32() : IFilter32()
-	{
-	}
+	LowPassFilter16() : TemplateLowPassFilter<IFilter16, uint32_t, Factor, 8>() {}
+};
 
-	virtual void Step()
-	{
-		HighValue = HighValue - (HighValue >> ConstrainedFactor) + InputValue;
-		OutputValue = HighValue >> ConstrainedFactor;
-	}
+template<const uint8_t Factor = 4>
+class LowPassFilter32 : public TemplateLowPassFilter<IFilter32, uint64_t, Factor, 8>
+{
+public:
+	LowPassFilter32() : TemplateLowPassFilter<IFilter32, uint64_t, Factor, 8>() {}
 };
 #endif

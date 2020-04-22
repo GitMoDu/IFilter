@@ -5,16 +5,19 @@
 
 #include <EMAFilter.h>
 
-
-class DEMAFilter8 : public IFilter8
+template<class IFilterBase, class EMAFilter>
+class TemplateDEMAFilter : public IFilterBase
 {
 private:
-	EMAFilter8 First;
-	EMAFilter8 Second;
+	EMAFilter First;
+	EMAFilter Second;
+
+	using IFilterBase::InputValue;
+	using IFilterBase::OutputValue;
 
 public:
-	DEMAFilter8(const uint8_t saturation = 127)
-		: IFilter8()
+	TemplateDEMAFilter(const uint8_t saturation = 127)
+		: IFilterBase()
 		, First(saturation)
 		, Second(saturation)
 	{
@@ -28,7 +31,7 @@ public:
 
 	virtual void ForceReset(const uint8_t input)
 	{
-		IFilter8::ForceReset(input);
+		IFilterBase::ForceReset(input);
 		First.ForceReset(input);
 		Second.ForceReset(input);
 	}
@@ -44,78 +47,27 @@ public:
 	}
 };
 
-class DEMAFilter16 : public IFilter16
+class DEMAFilter8 : public TemplateDEMAFilter<IFilter8, EMAFilter8>
 {
-private:
-	EMAFilter16 First;
-	EMAFilter16 Second;
+public:
+	DEMAFilter8(const uint8_t saturation = 127)
+		: TemplateDEMAFilter<IFilter8, EMAFilter8>(saturation)
+	{}
+};
 
+class DEMAFilter16 : public TemplateDEMAFilter<IFilter16, EMAFilter16>
+{
 public:
 	DEMAFilter16(const uint8_t saturation = 127)
-		: IFilter16()
-		, First(saturation)
-		, Second(saturation)
-	{
-	}
-
-	void SetSaturation(const uint8_t saturation)
-	{
-		First.SetSaturation(saturation);
-		Second.SetSaturation(saturation);
-	}
-
-	virtual void ForceReset(const uint16_t input)
-	{
-		IFilter16::ForceReset(input);
-		First.ForceReset(input);
-		Second.ForceReset(input);
-	}
-
-	virtual void Step()
-	{
-		First.Set(InputValue);
-		First.Step();
-		Second.Set(First.Get());
-		Second.Step();
-
-		OutputValue = Second.Get();
-	}
+		: TemplateDEMAFilter<IFilter16, EMAFilter16>(saturation)
+	{}
 };
 
-class DEMAFilter32 : public IFilter32
+class DEMAFilter32 : public TemplateDEMAFilter<IFilter32, EMAFilter32>
 {
-private:
-	EMAFilter32 First;
-	EMAFilter32 Second;
-
 public:
 	DEMAFilter32(const uint8_t saturation = 127)
-		: IFilter32()
-	{
-	}
-
-	void SetSaturation(const uint8_t saturation)
-	{
-		First.SetSaturation(saturation);
-		Second.SetSaturation(saturation);
-	}
-
-
-	virtual void ForceReset(const uint32_t input)
-	{
-		IFilter32::ForceReset(input);
-		First.ForceReset(input);
-		Second.ForceReset(input);
-	}
-
-	virtual void Step()
-	{
-		First.Set(InputValue);
-		First.Step();
-		Second.Set(First.Get());
-		Second.Step();
-
-		OutputValue = Second.Get();
-	}
+		: TemplateDEMAFilter<IFilter32, EMAFilter32>(saturation)
+	{}
 };
 #endif
