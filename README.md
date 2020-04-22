@@ -1,12 +1,12 @@
 # IFilter
 
-A collection of, Arduino compatible, signal processing filters, collections and process task to update values.
+A collection of, Arduino compatible, integer-only signal processing filters.
+Extra process task to update values using common interface.
 
-Input/Output is 16 bit wide [ 0 : 65535].
+Templates and filters are provided in 8, 16 and 32 bit unsigned integers.
 
-FilterGroup - Template class to generate a filter collection, which is added one by one in setup/runtime.
 
-FilterProcess - Useful to scheduled asynchronous filter step updating, for a FilterGroup.
+IFilterStepperTask - Useful for scheduled filter step.
 
 IFilter - Common interface to all filters and base class for new filters.
 
@@ -14,8 +14,15 @@ IFilter - Common interface to all filters and base class for new filters.
 
 Available filters:
 
-EMA (Exponential Moving Average) - Optimized for integer operations. Inspired by https://www.norwegiancreations.com/2016/08/double-exponential-moving-average-filter-speeding-up-the-ema/ .
+EMA (Exponential Moving Average) - 8 Bit version has a distorted response.
 
-![](https://raw.githubusercontent.com/GitMoDu/IFilter/master/Media/ResponseEMA.png)
+![](https://raw.githubusercontent.com/GitMoDu/IFilter/master/Media/EMA.png)
 
-TemporalOversamplingFilter - Useful to get 16 bits out of a 8 bit signal, by oversampling temporaly and performing a weighted average for the result, tending to the freshest values to reduce latency.
+DEMA (Double Exponential Moving Average) - 8 Bit version has a distorted response.
+
+![](https://raw.githubusercontent.com/GitMoDu/IFilter/master/Media/DEMA.png)
+
+Low Pass.
+
+![](https://raw.githubusercontent.com/GitMoDu/IFilter/master/Media/LowPass.png)
+![](https://raw.githubusercontent.com/GitMoDu/IFilter/master/Media/LowPassFactor.png)
