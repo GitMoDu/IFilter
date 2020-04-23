@@ -54,7 +54,7 @@ public:
 
 	void SetSigned(const SignedType input)
 	{
-		InputValue = (SignedType)(input + OffsetValue);
+		InputValue = (ValueType)(input + OffsetValue);
 	}
 
 	SignedType GetSigned()
