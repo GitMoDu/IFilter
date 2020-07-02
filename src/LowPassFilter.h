@@ -10,14 +10,14 @@
 #include <IFilterTemplate.h>
 
 
-template<class IFilterBase, typename HighType, const uint8_t Factor, const uint8_t MaxFactor>
+template<class IFilterBase, typename HighType, const uint8_t Factor, const uint8_t MaxFactor = 8>
 class TemplateLowPassFilter : public IFilterBase
 {
-private:
+protected:
 	const uint8_t ConstrainedFactor = min(Factor, MaxFactor);
-
 	HighType HighValue = 0;
 
+private:
 	using IFilterBase::InputValue;
 	using IFilterBase::OutputValue;
 
@@ -35,23 +35,56 @@ public:
 };
 
 template<const uint8_t Factor = 4>
-class LowPassFilter8 : public TemplateLowPassFilter<IFilter8, uint16_t, Factor, 8>
+class LowPassFilter8 : public TemplateLowPassFilter<IFilter8, uint16_t, Factor>
 {
+private:
+	using BaseClass = TemplateLowPassFilter<IFilter8, uint16_t, Factor>;
+	using BaseClass::HighValue;
+	using BaseClass::ConstrainedFactor;
+
 public:
-	LowPassFilter8() : TemplateLowPassFilter<IFilter8, uint16_t, Factor, 8>() {}
+	LowPassFilter8() : BaseClass() {}
+
+	virtual void ForceReset(const uint8_t input)
+	{
+		HighValue = input << ConstrainedFactor;
+		BaseClass::ForceReset(input);
+	}
 };
 
 template<const uint8_t Factor = 4>
-class LowPassFilter16 : public TemplateLowPassFilter<IFilter16, uint32_t, Factor, 8>
+class LowPassFilter16 : public TemplateLowPassFilter<IFilter16, uint32_t, Factor>
 {
+private:
+	using BaseClass = TemplateLowPassFilter<IFilter16, uint32_t, Factor>;
+	using BaseClass::HighValue;
+	using BaseClass::ConstrainedFactor;
+
 public:
-	LowPassFilter16() : TemplateLowPassFilter<IFilter16, uint32_t, Factor, 8>() {}
+	LowPassFilter16() : BaseClass() {}
+
+	virtual void ForceReset(const uint16_t input)
+	{
+		HighValue = input << ConstrainedFactor;
+		BaseClass::ForceReset(input);
+	}
 };
 
 template<const uint8_t Factor = 4>
-class LowPassFilter32 : public TemplateLowPassFilter<IFilter32, uint64_t, Factor, 8>
+class LowPassFilter32 : public TemplateLowPassFilter<IFilter32, uint64_t, Factor>
 {
+private:
+	using BaseClass = TemplateLowPassFilter<IFilter32, uint64_t, Factor>;
+	using BaseClass::HighValue;
+	using BaseClass::ConstrainedFactor;
+
 public:
-	LowPassFilter32() : TemplateLowPassFilter<IFilter32, uint64_t, Factor, 8>() {}
+	LowPassFilter32() : BaseClass() {}
+
+	virtual void ForceReset(const uint32_t input)
+	{
+		HighValue = input << ConstrainedFactor;
+		BaseClass::ForceReset(input);
+	}
 };
 #endif
