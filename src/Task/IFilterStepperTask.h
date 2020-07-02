@@ -4,6 +4,7 @@
 #define _PROCESSFILTERMANAGER_h
 
 #define _TASK_OO_CALLBACKS
+#define _TASK_SLEEP_ON_IDLE_RUN
 #include <TaskSchedulerDeclarations.h>
 
 #include <IFilter.h>
