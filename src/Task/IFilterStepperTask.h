@@ -10,6 +10,12 @@
 #include <IFilter.h>
 
 
+class StepperListener
+{
+public:
+	virtual void OnFiltersStepped() {}
+};
+
 template <const uint32_t UpdatePeriod,
 	const uint8_t MaxCount = 5>
 	class IFilterStepperTask : public Task
@@ -18,11 +24,10 @@ private:
 	IFilter* Filters[MaxCount];
 	uint8_t FilterCount = 0;
 
-protected:
-	virtual void OnFiltersStepped() {}
+	StepperListener* Listener = nullptr;
 
 public:
-	IFilterStepperTask(Scheduler* scheduler)
+	IFilterStepperTask(Scheduler* scheduler, StepperListener* listener = nullptr)
 		: Task(UpdatePeriod, TASK_FOREVER, scheduler, false)
 	{
 		for (uint8_t i = 0; i < MaxCount; i++)
@@ -39,13 +44,11 @@ public:
 			Filters[i]->Step();
 		}
 
-		OnFiltersStepped();
+		if (Listener != nullptr)
+		{
+			Listener->OnFiltersStepped();
+		}
 
-		return true;
-	}
-
-	virtual bool OnEnable()
-	{
 		return true;
 	}
 
@@ -54,6 +57,19 @@ public:
 		if (FilterCount < MaxCount)
 		{
 			Filters[FilterCount] = &newFilter;
+			FilterCount++;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	bool AddFilter(IFilter* newFilter)
+	{
+		if (FilterCount < MaxCount)
+		{
+			Filters[FilterCount] = newFilter;
 			FilterCount++;
 
 			return true;
@@ -84,5 +100,4 @@ public:
 	}
 #endif
 };
-
 #endif
